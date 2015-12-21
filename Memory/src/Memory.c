@@ -8,10 +8,10 @@ char mem_progress[] = "-\\|/";
 #define PROGRESSLEN 4
 #define PROGRESSOFTEN 2500
 #define ONE 0x00000001L
+
 #define ULONG_MAX (4294967295UL)
 extern unsigned long get_timer_masked(void);
 
-//#define rand32() ((unsigned int) rand() | ( (unsigned int) rand() << 16))
 #define rand32() rand()
 
 #if (ULONG_MAX == 4294967295UL)
@@ -33,9 +33,6 @@ extern unsigned long get_timer_masked(void);
     #error long on this platform is not 32 or 64 bits
 #endif
 
-int use_phys = 0;
-//unsigned int physaddr = 0;
-/* Function definitions. */
 
 void main() {
 
@@ -47,10 +44,6 @@ void main() {
 	count = halflen / sizeof(long);
 	bufa = (long *) aligned;
 	bufb = (long *) ((size_t) aligned + halflen);
-//	for (int i = 0; i < 128; i++){
-//		if (i%2==0) bufa = 55h;
-//		bufa=
-//	}
 
 	test_random_value(bufa, bufb, count);
 	test_xor_comparison(bufa, bufb, count);
@@ -106,16 +99,6 @@ int test_stuck_address(long *bufa, size_t count) {
         p1 = (long *) bufa;
         for (i = 0; i < count; i++, p1++) {
             if (*p1 != (((j + i) % 2) == 0 ? (long) p1 : ~((long) p1))) {
-                if (use_phys) {
-                    //physaddr = physaddrbase + (i * sizeof(ul));
-                    printf(
-                            "FAILURE: not support address line at physical\n");
-                } else {
-                    printf(
-                            "FAILURE: possible bad address line at offset "
-                            "0x%08lx.\n",
-                            (long) (i * sizeof(long)));
-                }
                 printf("Skipping to next test...\n");
                 //fflush(stdout);
                 return -1;
@@ -141,7 +124,6 @@ int test_random_value(long *bufa, long *bufb, size_t count) {
         }
     }
     printf("\b \b");
-    //fflush(stdout);
     return compare_regions(bufa, bufb, count);
 }
 
