@@ -1,3 +1,6 @@
+#include <stdlib.h>
+#include <stdio.h>
+#include <unistd.h>
 #include "types.h"
 #include "sizes.h"
 
@@ -9,7 +12,7 @@ char mem_progress[] = "-\\|/";
 extern unsigned long get_timer_masked(void);
 
 //#define rand32() ((unsigned int) rand() | ( (unsigned int) rand() << 16))
-#define rand32() ((unsigned int) get_timer_masked() | ( (unsigned int) get_timer_masked() << 16))
+#define rand32() rand()
 
 #if (ULONG_MAX == 4294967295UL)
     #define rand_ul() rand32()
@@ -35,10 +38,11 @@ int use_phys = 0;
 /* Function definitions. */
 
 void main() {
-	void volatile *aligned;
+
 	size_t bufsize, halflen, count;
 	bufsize = 3000;
-	unsigned long bufa, bufb;
+	char *aligned = malloc(bufsize);
+	long *bufa, *bufb;
 	halflen = bufsize / 2;
 	count = halflen / sizeof(long);
 	bufa = (long *) aligned;
@@ -48,21 +52,21 @@ void main() {
 //		bufa=
 //	}
 
-	test_random_value(*bufa, *bufb, count);
-	test_xor_comparison(*bufa, *bufb, count);
-	test_sub_comparison(*bufa, *bufb, count);
-	test_mul_comparison(*bufa, *bufb, count);
-	test_div_comparison(*bufa, *bufb, count);
-	test_or_comparison(*bufa, *bufb, count);
-	test_and_comparison(*bufa, *bufb, count);
-	test_seqinc_comparison(*bufa, *bufb, count);
-	test_solidbits_comparison(*bufa, *bufb, count);
-	test_checkerboard_comparison(*bufa, *bufb, count);
-	test_blockseq_comparison(*bufa, *bufb, count);
-	test_walkbits0_comparison(*bufa, *bufb, count);
-	test_walkbits1_comparison(*bufa, *bufb, count);
-	test_bitspread_comparison(*bufa, *bufb, count);
-	test_bitflip_comparison(*bufa, *bufb, count);
+	test_random_value(bufa, bufb, count);
+	test_xor_comparison(bufa, bufb, count);
+	test_sub_comparison(bufa, bufb, count);
+	test_mul_comparison(bufa, bufb, count);
+	test_div_comparison(bufa, bufb, count);
+	test_or_comparison(bufa, bufb, count);
+	test_and_comparison(bufa, bufb, count);
+	test_seqinc_comparison(bufa, bufb, count);
+	test_solidbits_comparison(bufa, bufb, count);
+	test_checkerboard_comparison(bufa, bufb, count);
+	test_blockseq_comparison(bufa, bufb, count);
+	test_walkbits0_comparison(bufa, bufb, count);
+	test_walkbits1_comparison(bufa, bufb, count);
+	test_bitspread_comparison(bufa, bufb, count);
+	test_bitflip_comparison(bufa, bufb, count);
 }
 
 int compare_regions(long *bufa, long *bufb, size_t count) {
@@ -70,12 +74,6 @@ int compare_regions(long *bufa, long *bufb, size_t count) {
     size_t i;
     long *p1 = bufa;
     long *p2 = bufb;
-    //off_t physaddr;
-
-   if (use_phys) {
-               // physaddr = physaddrbase + (i * sizeof(ul));
-                printf("FAILURE: not support physical address\n");
-    }
 
     for (i = 0; i < count; i++, p1++, p2++) {
         if (*p1 != *p2) {
@@ -125,7 +123,6 @@ int test_stuck_address(long *bufa, size_t count) {
         }
     }
     printf("\b\b\b\b\b\b\b\b\b\b\b           \b\b\b\b\b\b\b\b\b\b\b");
-    //fflush(stdout);
     return 0;
 }
 
